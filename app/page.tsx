@@ -17,34 +17,27 @@ export default function Home() {
   };
 
   // 4. 下載圖片的完整邏輯
+  // 4. 下載圖片的穩定版邏輯
   const handleDownload = () => {
-    // 找到剛剛產生的 QR Code 圖片
     const svgElement = qrCodeRef.current?.querySelector("svg");
     
     if (svgElement) {
-      // 將圖片轉換為可以下載的格式
       const serializer = new XMLSerializer();
       const svgData = serializer.serializeToString(svgElement);
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
       
-      const image = new Image();
-      image.onload = () => {
-        canvas.width = image.width;
-        canvas.height = image.height;
-        context?.drawImage(image, 0, 0);
-        
-        // 設定下載的網址格式並觸發下載
-        const url = canvas.toDataURL("image/jpeg");
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "my-qr-code.jpg"; 
-        link.click();
-      };
-      image.src = "data:image/svg+xml;base64," + btoa(svgData);
+      // 將 SVG 轉成 Blob，這是最乾淨的瀏覽器原生處理方式
+      const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "my-qr-code.svg"; // 建議先下載為 svg，這樣絕對不會跑版
+      link.click();
+      
+      // 清理記憶體
+      URL.revokeObjectURL(url);
     }
   };
-
   // 5. 畫出網頁畫面
   return (
     <div style={{ textAlign: "center", marginTop: "50px", fontFamily: "sans-serif" }}>
@@ -73,6 +66,15 @@ export default function Home() {
           <p style={{ color: "#888" }}>請輸入網址來產生 QR Code</p>
         )}
       </div>
+
+      // 在你的 app/page.tsx 中
+    {inputValue ? (
+     <div key={inputValue}> {/* 增加這個 key，當輸入改變時強制讓 React 重新繪製 */}
+      <QRCodeSVG value={inputValue} size={256} />
+     </div>
+        ) : (
+  <p style={{ color: "#888" }}>請輸入網址來產生 QR Code</p>
+)}
 
       {/* 下載按鈕：只有在有網址時才出現 */}
       {inputValue && (
