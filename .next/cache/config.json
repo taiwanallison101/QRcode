@@ -1,7 +1,11 @@
-{
-	"telemetry": {
-		"notifiedAt": "1783845327081",
-		"anonymousId": "9f735560771b93a051396109c905d5ee98a6ad1b11e4025317f5622d75e66c1e",
-		"salt": "bf2c4639efe32d02eea21a9982566d16"
-	}
-}
+
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: 'export', // 這行是關鍵，告訴 Next.js 我們要匯出靜態檔案
+  images: {
+    unoptimized: true, // 靜態匯出時需要關閉圖片優化
+  },
+};
+
+export default nextConfig;
